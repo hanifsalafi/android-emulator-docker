@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   emulator:
-    image: budtmo/docker-android-x86-8.1
+    image: budtmo/docker-android:latest
     container_name: android-emulator
     privileged: true
     ports:
