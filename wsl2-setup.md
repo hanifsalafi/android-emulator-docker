@@ -93,5 +93,10 @@ sudo chmod 666 /dev/kvm
 2. **CPU cores**: Alokasikan minimal 2 CPU cores
 3. **Storage**: Gunakan SSD untuk performa lebih baik
 
+## Access Points
+- **Frontend**: http://localhost:9080
+- **Emulator (noVNC)**: http://localhost:6080
+- **API Test**: http://localhost:9080/test-api.html
+
 ---
 **Happy Emulating! 🎮📱** 

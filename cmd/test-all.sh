@@ -47,7 +47,7 @@ function test_url() {
   fi
 }
 
-test_url "http://localhost:8080" "Frontend"
+test_url "http://localhost:9080" "Frontend"
 test_url "http://localhost:6080" "Emulator (noVNC)"
 test_url "http://localhost:3000/api/status" "API"
 
@@ -59,7 +59,7 @@ echo "========================================"
 echo
 
 echo "All basic tests completed!"
-echo "- Open http://localhost:8080 to use the controller"
-echo "- Run ./run.sh for normal usage"
+echo "- Open http://localhost:9080 to use the controller"
+echo "- Run ./cmd/run.sh for normal usage"
 echo "- See README.md for more info"
 echo 

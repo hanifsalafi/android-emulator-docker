@@ -40,20 +40,28 @@ Solusi lengkap untuk mengakses dan mengontrol emulator Android langsung dari bro
    sudo ./cmd/setup-minimal.sh
    ```
 
-3. **Jalankan solusi**
+3. **Jalankan solusi (Pilih salah satu)**
+
+   **Auto-detect setup:**
    ```bash
    ./cmd/run.sh
    ```
 
+   **Minimal setup (eksplisit):**
+   ```bash
+   ./cmd/run-minimal.sh
+   ```
+
 ### Akses
-- **Frontend**: http://localhost:8080
+- **Frontend**: http://localhost:9080
 - **Emulator (noVNC)**: http://localhost:6080
-- **API Test**: http://localhost:8080/test-api.html
+- **API Test**: http://localhost:9080/test-api.html
 
 ## 🔧 Script Management
 | Script | Fungsi |
 |--------|--------|
-| `cmd/run.sh` | Menjalankan semua services |
+| `cmd/run.sh` | Menjalankan services (auto-detect setup) |
+| `cmd/run-minimal.sh` | Menjalankan services (minimal setup) |
 | `cmd/stop.sh` | Menghentikan semua services |
 | `cmd/status.sh` | Menampilkan status services |
 | `cmd/logs.sh` | Melihat logs services |

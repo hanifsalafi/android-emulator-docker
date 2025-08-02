@@ -229,7 +229,8 @@ android-emulator-docker/
 ├── 📄 FEATURES.md                 # Daftar fitur lengkap
 ├── 📄 wsl2-setup.md               # Setup Ubuntu/Linux
 ├── 📁 cmd/                        # Script management
-│   ├── 📄 run.sh                  # Menjalankan services
+│   ├── 📄 run.sh                  # Menjalankan services (auto-detect)
+│   ├── 📄 run-minimal.sh          # Menjalankan services (minimal)
 │   ├── 📄 stop.sh                 # Menghentikan services
 │   ├── 📄 status.sh               # Status services
 │   ├── 📄 logs.sh                 # Melihat logs
@@ -263,6 +264,27 @@ android-emulator-docker/
 - ✅ Tidak install package video
 - ❌ Kamera streaming tidak tersedia
 - ✅ Kontrol emulator tetap berfungsi
+
+## 🎯 Run Options
+
+### Auto-detect Setup (`run.sh`)
+- ✅ Mendeteksi jenis setup secara otomatis
+- ✅ Menyesuaikan pesan dan logika
+- ✅ Support untuk setup lengkap dan minimal
+- ✅ Fleksibel untuk berbagai environment
+
+### Minimal Setup (`run-minimal.sh`)
+- ✅ Eksplisit untuk setup minimal
+- ✅ Tidak mencoba setup kamera
+- ✅ Pesan yang jelas tentang keterbatasan
+- ✅ Cocok untuk testing dan development
+
+## 🌐 Access Points
+- **Frontend**: http://localhost:9080
+- **Emulator (noVNC)**: http://localhost:6080
+- **API Test**: http://localhost:9080/test-api.html
+- **WebSocket**: ws://localhost:9999
+- **HTTP API**: http://localhost:3000
 
 ---
 **Total Features: 100+** 🎉 

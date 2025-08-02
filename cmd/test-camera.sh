@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "========================================"
-echo "  Camera Test - Android Emulator Controller (Linux)"
+echo "  Camera Test - Android Emulator Controller"
 echo "========================================"
 echo
 
@@ -23,7 +23,7 @@ else
 fi
 
 echo "[3/3] Testing camera streaming..."
-echo "- Open http://localhost:8080 in your browser."
+echo "- Open http://localhost:9080 in your browser."
 echo "- Click 'Start Camera' and allow camera access."
 echo "- Open camera app in emulator (http://localhost:6080)."
 echo "- You should see your browser camera feed in the emulator."

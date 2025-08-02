@@ -8,12 +8,39 @@ if [[ "$OSTYPE" != "linux-gnu"* ]]; then
     exit 1
 fi
 
-# Check if running as root for device access
-if [ "$EUID" -ne 0 ]; then
-    echo "Running setup commands with sudo..."
-    sudo modprobe v4l2loopback video_nr=10 card_label="VirtualCam" exclusive_caps=1
-    sudo chmod 666 /dev/video10 2>/dev/null || true
-    sudo chmod 666 /dev/kvm 2>/dev/null || true
+# Detect setup type
+SETUP_TYPE="unknown"
+if modinfo v4l2loopback > /dev/null 2>&1 && [ -e /dev/video10 ]; then
+    SETUP_TYPE="full"
+elif command -v docker > /dev/null 2>&1 && command -v docker-compose > /dev/null 2>&1; then
+    SETUP_TYPE="minimal"
+else
+    echo "[ERROR] No setup detected. Please run setup first:"
+    echo "  Full setup: sudo ./cmd/setup.sh"
+    echo "  Minimal setup: sudo ./cmd/setup-minimal.sh"
+    exit 1
+fi
+
+echo "Detected setup type: $SETUP_TYPE"
+
+# Setup based on detected type
+if [ "$SETUP_TYPE" = "full" ]; then
+    echo "Full setup detected - Camera streaming available"
+    
+    # Check if running as root for device access
+    if [ "$EUID" -ne 0 ]; then
+        echo "Running camera setup commands with sudo..."
+        sudo modprobe v4l2loopback video_nr=10 card_label="VirtualCam" exclusive_caps=1
+        sudo chmod 666 /dev/video10 2>/dev/null || true
+        sudo chmod 666 /dev/kvm 2>/dev/null || true
+    fi
+    
+    CAMERA_AVAILABLE=true
+else
+    echo "Minimal setup detected - Camera streaming not available"
+    echo "To enable camera support, run: sudo ./cmd/setup.sh"
+    
+    CAMERA_AVAILABLE=false
 fi
 
 # Check if Docker is running
@@ -38,16 +65,30 @@ echo ""
 echo "🎉 Android Emulator Controller is ready!"
 echo ""
 echo "📱 Access points:"
-echo "   Frontend: http://localhost:8080"
+echo "   Frontend: http://localhost:9080"
 echo "   Emulator (noVNC): http://localhost:6080"
 echo ""
 echo "🔧 Troubleshooting:"
-echo "   View logs: docker-compose logs -f"
+echo "   View logs: ./cmd/logs.sh"
+echo "   Check status: ./cmd/status.sh"
 echo "   Restart: docker-compose restart"
-echo "   Stop: docker-compose down"
+echo "   Stop: ./cmd/stop.sh"
 echo ""
-echo "📷 Camera setup:"
-echo "   1. Open http://localhost:8080"
-echo "   2. Click 'Start Camera'"
-echo "   3. Allow camera access in browser"
-echo "   4. Camera will stream to emulator" 
+
+if [ "$CAMERA_AVAILABLE" = true ]; then
+    echo "📷 Camera setup (Available):"
+    echo "   1. Open http://localhost:9080"
+    echo "   2. Click 'Start Camera'"
+    echo "   3. Allow camera access in browser"
+    echo "   4. Camera will stream to emulator"
+else
+    echo "📷 Camera setup (Not available):"
+    echo "   Camera streaming is not available in minimal setup"
+    echo "   To enable camera: sudo ./cmd/setup.sh"
+fi
+
+echo ""
+echo "🎮 Basic controls:"
+echo "   - Click on emulator area for touch input"
+echo "   - Use navigation buttons for movement"
+echo "   - Load apps to manage applications" 
