@@ -1,0 +1,51 @@
+version: "3.8"
+
+services:
+  emulator:
+    image: budtmo/docker-android-x86-8.1
+    container_name: android-emulator
+    privileged: true
+    ports:
+      - "6080:6080"   # noVNC
+      - "4723:4723"   # Appium port
+    environment:
+      DEVICE: "Samsung Galaxy S6"
+      CONNECT_TO_GRID: "false"
+      CAMERA_CONTAINER_DEVICES: /dev/video10
+    volumes:
+      - /dev/kvm:/dev/kvm
+      - /dev/video10:/dev/video10
+    networks:
+      - emulator-network
+
+  websocket:
+    build: ./ws-server
+    container_name: emulator-controller
+    ports:
+      - "9999:9999"   # WebSocket server
+      - "3000:3000"   # HTTP API
+    volumes:
+      - /dev/video10:/dev/video10
+      - /tmp:/tmp
+    privileged: true
+    depends_on:
+      - emulator
+    networks:
+      - emulator-network
+
+  frontend:
+    image: nginx:alpine
+    container_name: emulator-frontend
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+      - ./frontend/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - "8080:80"
+    depends_on:
+      - websocket
+    networks:
+      - emulator-network
+
+networks:
+  emulator-network:
+    driver: bridge
