@@ -236,7 +236,8 @@ android-emulator-docker/
 │   ├── 📄 test-all.sh             # Test lengkap
 │   ├── 📄 test-api.sh             # Test API
 │   ├── 📄 test-camera.sh          # Test kamera
-│   ├── 📄 setup.sh                # Setup environment
+│   ├── 📄 setup.sh                # Setup environment lengkap
+│   ├── 📄 setup-minimal.sh        # Setup environment minimal
 │   └── 📄 test-camera.js          # Test kamera (Node.js)
 ├── 📁 frontend/                   # Web interface
 │   ├── 📄 index.html              # Interface utama
@@ -248,6 +249,20 @@ android-emulator-docker/
     ├── 📄 Dockerfile              # Image controller
     └── 📄 init.sh                 # Script inisialisasi
 ```
+
+## 🚀 Setup Options
+
+### Setup Lengkap (dengan kamera)
+- ✅ Install semua dependencies (ffmpeg, v4l2loopback, dll)
+- ✅ Setup virtual video device
+- ✅ Kamera streaming tersedia
+- ✅ Semua fitur berfungsi penuh
+
+### Setup Minimal (tanpa kamera)
+- ✅ Hanya setup environment basic
+- ✅ Tidak install package video
+- ❌ Kamera streaming tidak tersedia
+- ✅ Kontrol emulator tetap berfungsi
 
 ---
 **Total Features: 100+** 🎉 

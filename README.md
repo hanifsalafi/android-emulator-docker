@@ -25,19 +25,22 @@ Solusi lengkap untuk mengakses dan mengontrol emulator Android langsung dari bro
    git clone <repository-url>
    cd android-emulator-docker
    ```
-2. **Install dependencies**
+
+2. **Setup Environment (Pilih salah satu)**
+
+   **Option A: Setup Lengkap (dengan kamera)**
    ```bash
    sudo apt update && sudo apt install -y docker.io docker-compose ffmpeg v4l2loopback-dkms v4l-utils jq
-   ```
-3. **Aktifkan virtual camera**
-   ```bash
    sudo modprobe v4l2loopback video_nr=10 card_label="VirtualCam" exclusive_caps=1
-   ```
-4. **Jalankan setup (opsional)**
-   ```bash
    sudo ./cmd/setup.sh
    ```
-5. **Jalankan solusi**
+
+   **Option B: Setup Minimal (tanpa kamera)**
+   ```bash
+   sudo ./cmd/setup-minimal.sh
+   ```
+
+3. **Jalankan solusi**
    ```bash
    ./cmd/run.sh
    ```
@@ -57,7 +60,8 @@ Solusi lengkap untuk mengakses dan mengontrol emulator Android langsung dari bro
 | `cmd/test-all.sh` | Menjalankan semua test & verifikasi |
 | `cmd/test-api.sh` | Test API endpoints |
 | `cmd/test-camera.sh` | Test kamera & virtual device |
-| `cmd/setup.sh` | Setup environment (root) |
+| `cmd/setup.sh` | Setup environment lengkap (root) |
+| `cmd/setup-minimal.sh` | Setup environment minimal (root) |
 
 ## 🎮 Cara Penggunaan
 - Klik area emulator untuk tap
@@ -78,7 +82,8 @@ Lihat detail di file `FEATURES.md`.
 | `/api/install` | POST | Install APK |
 
 ## 📷 Kamera Support
-- Pastikan v4l2loopback aktif (`/dev/video10`)
+- **Setup Lengkap**: Kamera streaming tersedia
+- **Setup Minimal**: Kamera streaming tidak tersedia (perlu install manual)
 - Untuk troubleshooting, jalankan `./cmd/test-camera.sh`
 
 ## 🆘 Troubleshooting

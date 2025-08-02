@@ -6,6 +6,8 @@
 - Browser modern (Chrome/Firefox)
 
 ## Langkah Cepat
+
+### Option A: Setup Lengkap (dengan kamera)
 ```bash
 # 1. Clone repository
 git clone <repository-url>
@@ -17,10 +19,23 @@ sudo apt update && sudo apt install -y docker.io docker-compose ffmpeg v4l2loopb
 # 3. Aktifkan virtual camera
 sudo modprobe v4l2loopback video_nr=10 card_label="VirtualCam" exclusive_caps=1
 
-# 4. Jalankan setup (opsional)
+# 4. Jalankan setup
 sudo ./cmd/setup.sh
 
 # 5. Jalankan solusi
+./cmd/run.sh
+```
+
+### Option B: Setup Minimal (tanpa kamera)
+```bash
+# 1. Clone repository
+git clone <repository-url>
+cd android-emulator-docker
+
+# 2. Jalankan setup minimal
+sudo ./cmd/setup-minimal.sh
+
+# 3. Jalankan solusi
 ./cmd/run.sh
 ```
 
@@ -39,7 +54,8 @@ sudo ./cmd/setup.sh
 | `cmd/test-all.sh` | Menjalankan semua test & verifikasi |
 | `cmd/test-api.sh` | Test API endpoints |
 | `cmd/test-camera.sh` | Test kamera & virtual device |
-| `cmd/setup.sh` | Setup environment (root) |
+| `cmd/setup.sh` | Setup environment lengkap (root) |
+| `cmd/setup-minimal.sh` | Setup environment minimal (root) |
 
 ## Troubleshooting
 - **Cek status**: `./cmd/status.sh`
