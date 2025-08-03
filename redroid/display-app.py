@@ -95,24 +95,42 @@ HTML_TEMPLATE = """
 """
 
 def ensure_adb_connection():
-    """Ensure ADB is connected to Redroid"""
+    """Ensure ADB is connected to Redroid with persistent connection"""
     try:
-        # Start ADB server
+        # Start ADB server first
         subprocess.run(['adb', 'start-server'], timeout=10, capture_output=True)
+        time.sleep(2)  # Wait for server to be ready
         
-        # Try multiple connection methods
+        # Kill any existing ADB connections
+        subprocess.run(['adb', 'kill-server'], timeout=5, capture_output=True)
+        time.sleep(2)
+        subprocess.run(['adb', 'start-server'], timeout=10, capture_output=True)
+        time.sleep(2)
+        
+        # Try multiple connection methods with retry
         connection_methods = [
-            ['adb', 'connect', '38.47.180.165:5555'],
-            ['adb', 'connect', 'localhost:5555'],
-            ['adb', 'connect', '127.0.0.1:5555']
+            ['adb', 'connect', '38.47.180.165:5555']
         ]
         
         for method in connection_methods:
             try:
-                result = subprocess.run(method, timeout=10, capture_output=True, text=True)
-                print(f"ADB connection attempt: {' '.join(method)} - {result.stdout}")
-                if 'connected' in result.stdout.lower():
-                    return True
+                print(f"Trying ADB connection: {' '.join(method)}")
+                result = subprocess.run(method, timeout=15, capture_output=True, text=True)
+                print(f"ADB connection result: {result.stdout}")
+                
+                if 'connected' in result.stdout.lower() or 'already connected' in result.stdout.lower():
+                    # Verify connection is stable
+                    time.sleep(3)
+                    verify_result = subprocess.run(['adb', 'devices'], timeout=10, capture_output=True, text=True)
+                    print(f"ADB devices verification: {verify_result.stdout}")
+                    
+                    if '38.47.180.165:5555' in verify_result.stdout or 'device' in verify_result.stdout:
+                        print("ADB connection verified successfully")
+                        return True
+                    else:
+                        print("ADB connection not stable, retrying...")
+                        continue
+                        
             except Exception as e:
                 print(f"ADB connection failed for {' '.join(method)}: {e}")
                 continue
@@ -121,6 +139,22 @@ def ensure_adb_connection():
     except Exception as e:
         print(f"ADB connection error: {e}")
         return False
+
+def execute_adb_command(command, timeout=15):
+    """Execute ADB command with connection check"""
+    try:
+        # Check if device is still connected
+        devices_result = subprocess.run(['adb', 'devices'], timeout=10, capture_output=True, text=True)
+        if 'device' not in devices_result.stdout or '38.47.180.165:5555' not in devices_result.stdout:
+            print("Device not connected, reconnecting...")
+            if not ensure_adb_connection():
+                return False, "Failed to reconnect to device"
+        
+        # Execute the command
+        result = subprocess.run(command, timeout=timeout, capture_output=True, text=True)
+        return True, result.stdout
+    except Exception as e:
+        return False, str(e)
 
 @app.route('/')
 def index():
@@ -133,8 +167,11 @@ def status():
         if not ensure_adb_connection():
             return {'connected': False, 'device': 'ADB connection failed'}
         
-        result = subprocess.run(['adb', 'devices'], capture_output=True, text=True, timeout=10)
-        devices = result.stdout.strip().split('\n')[1:]
+        success, output = execute_adb_command(['adb', 'devices'])
+        if not success:
+            return {'connected': False, 'device': f'Error: {output}'}
+        
+        devices = output.strip().split('\n')[1:]
         connected = any('device' in device for device in devices if device.strip())
         device_info = devices[0] if devices else 'No device'
         return {'connected': connected, 'device': device_info}
@@ -144,13 +181,14 @@ def status():
 @app.route('/screenshot')
 def screenshot():
     try:
-        # Ensure ADB connection
-        if not ensure_adb_connection():
-            return 'ADB connection failed', 500
+        # Take screenshot using ADB with connection check
+        success, output = execute_adb_command(['adb', 'shell', 'screencap', '-p', '/sdcard/screenshot.png'])
+        if not success:
+            return f'Screenshot capture failed: {output}', 500
         
-        # Take screenshot using ADB
-        subprocess.run(['adb', 'shell', 'screencap', '-p', '/sdcard/screenshot.png'], timeout=10)
-        subprocess.run(['adb', 'pull', '/sdcard/screenshot.png', '/tmp/screenshot.png'], timeout=10)
+        success, output = execute_adb_command(['adb', 'pull', '/sdcard/screenshot.png', '/tmp/screenshot.png'])
+        if not success:
+            return f'Screenshot pull failed: {output}', 500
         
         # Read and return the image
         with open('/tmp/screenshot.png', 'rb') as f:
