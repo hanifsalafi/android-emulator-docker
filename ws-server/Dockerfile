@@ -1,5 +1,8 @@
 FROM ubuntu:20.04
 
+ENV TZ=Asia/Jakarta
+ENV DEBIAN_FRONTEND=noninteractive
+
 # Install dependencies
 RUN apt-get update && apt-get install -y \
     nodejs \
