@@ -53,8 +53,10 @@ services:
     volumes:
       - /dev/kvm:/dev/kvm
       - ./display-app.py:/app/app.py
+      - /tmp:/tmp  # Share ADB server socket
     depends_on:
       - redroid
+      - websocket
     networks:
       - redroid-network
     command: >
@@ -64,6 +66,12 @@ services:
         pip3 install flask flask-cors &&
         mkdir -p /app &&
         cd /app &&
+        # Wait for ADB server to be ready
+        sleep 45 &&
+        # Connect to ADB server from redroid-controller
+        adb connect redroid-controller:5037 &&
+        # Connect to Redroid device
+        adb connect android-redroid:5555 &&
         python3 app.py
       "
 

@@ -94,6 +94,34 @@ HTML_TEMPLATE = """
 </html>
 """
 
+def ensure_adb_connection():
+    """Ensure ADB is connected to Redroid"""
+    try:
+        # Start ADB server
+        subprocess.run(['adb', 'start-server'], timeout=10, capture_output=True)
+        
+        # Try multiple connection methods
+        connection_methods = [
+            ['adb', 'connect', 'android-redroid:5555'],
+            ['adb', 'connect', 'localhost:5555'],
+            ['adb', 'connect', 'redroid:5555']
+        ]
+        
+        for method in connection_methods:
+            try:
+                result = subprocess.run(method, timeout=10, capture_output=True, text=True)
+                print(f"ADB connection attempt: {' '.join(method)} - {result.stdout}")
+                if 'connected' in result.stdout.lower():
+                    return True
+            except Exception as e:
+                print(f"ADB connection failed for {' '.join(method)}: {e}")
+                continue
+        
+        return False
+    except Exception as e:
+        print(f"ADB connection error: {e}")
+        return False
+
 @app.route('/')
 def index():
     return render_template_string(HTML_TEMPLATE)
@@ -101,17 +129,25 @@ def index():
 @app.route('/status')
 def status():
     try:
+        # Ensure ADB connection
+        if not ensure_adb_connection():
+            return {'connected': False, 'device': 'ADB connection failed'}
+        
         result = subprocess.run(['adb', 'devices'], capture_output=True, text=True, timeout=10)
         devices = result.stdout.strip().split('\n')[1:]
         connected = any('device' in device for device in devices if device.strip())
         device_info = devices[0] if devices else 'No device'
         return {'connected': connected, 'device': device_info}
-    except:
-        return {'connected': False, 'device': 'Error checking status'}
+    except Exception as e:
+        return {'connected': False, 'device': f'Error: {str(e)}'}
 
 @app.route('/screenshot')
 def screenshot():
     try:
+        # Ensure ADB connection
+        if not ensure_adb_connection():
+            return 'ADB connection failed', 500
+        
         # Take screenshot using ADB
         subprocess.run(['adb', 'shell', 'screencap', '-p', '/sdcard/screenshot.png'], timeout=10)
         subprocess.run(['adb', 'pull', '/sdcard/screenshot.png', '/tmp/screenshot.png'], timeout=10)
@@ -125,11 +161,18 @@ def screenshot():
         return str(e), 500
 
 if __name__ == '__main__':
+    print("Starting Redroid Display App...")
+    
     # Wait for Redroid to be ready
+    print("Waiting for Redroid to be ready...")
     time.sleep(30)
     
-    # Start ADB server and connect to Redroid
-    subprocess.run(['adb', 'start-server'])
-    subprocess.run(['adb', 'connect', 'android-redroid:5555'])
+    # Try to establish ADB connection
+    print("Establishing ADB connection...")
+    if ensure_adb_connection():
+        print("ADB connection established successfully")
+    else:
+        print("Warning: ADB connection failed, will retry on requests")
     
+    print("Starting Flask app on port 6080...")
     app.run(host='0.0.0.0', port=6080, debug=False) 
