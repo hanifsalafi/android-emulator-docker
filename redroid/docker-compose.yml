@@ -7,7 +7,6 @@ services:
     privileged: true
     ports:
       - "5555:5555"   # ADB port
-      - "6080:6080"   # noVNC port
     environment:
       - DISPLAY=:0
     volumes:
@@ -16,23 +15,6 @@ services:
       - redroid_data:/data
     networks:
       - redroid-network
-    command: >
-      sh -c "
-        # Start Redroid
-        /system/bin/redroid &
-        
-        # Wait for Redroid to be ready
-        sleep 30
-        
-        # Start noVNC
-        /usr/bin/x11vnc -display :0 -nopw -listen 38.47.180.165 -xkb -ncache 10 -ncache_cr -forever &
-        
-        # Start websockify for noVNC
-        /usr/bin/websockify --web /usr/share/novnc/ 6080 38.47.180.165:5900 &
-        
-        # Keep container running
-        tail -f /dev/null
-      "
 
   websocket:
     build: ../ws-server

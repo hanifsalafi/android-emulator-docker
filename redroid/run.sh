@@ -12,7 +12,7 @@ if [[ "$OSTYPE" != "linux-gnu"* ]]; then
 fi
 
 # Check KVM
-echo "[1/5] Checking KVM support..."
+echo "[1/6] Checking KVM support..."
 if [ -e /dev/kvm ]; then
     echo "[OK] KVM is available"
     ls -l /dev/kvm
@@ -24,7 +24,7 @@ fi
 
 # Check Docker
 echo
-echo "[2/5] Checking Docker status..."
+echo "[2/6] Checking Docker status..."
 if ! docker info > /dev/null 2>&1; then
     echo "Docker is not running. Please start Docker first."
     exit 1
@@ -33,7 +33,7 @@ echo "[OK] Docker is running"
 
 # Check if Redroid image exists
 echo
-echo "[3/5] Checking Redroid image..."
+echo "[3/6] Checking Redroid image..."
 if ! docker images | grep -q "redroid/redroid"; then
     echo "Pulling Redroid image..."
     docker pull redroid/redroid:11.0.0-latest
@@ -42,14 +42,40 @@ echo "[OK] Redroid image available"
 
 # Start services
 echo
-echo "[4/5] Starting Redroid services..."
+echo "[4/6] Starting Redroid services..."
 docker-compose up --build -d
 echo "[OK] Services started"
 
-# Wait for services
+# Wait for Redroid to boot
 echo
-echo "[5/5] Waiting for Redroid to boot (this may take 2-3 minutes)..."
+echo "[5/6] Waiting for Redroid to boot (this may take 2-3 minutes)..."
 sleep 60
+
+# Setup noVNC for Redroid
+echo
+echo "[6/6] Setting up noVNC access..."
+echo "Starting noVNC container for Redroid..."
+
+# Start noVNC container for Redroid
+docker run -d \
+  --name redroid-novnc \
+  --network redroid_redroid-network \
+  -p 6080:6080 \
+  -e DISPLAY=:0 \
+  --volumes-from android-redroid \
+  theasp/novnc:latest \
+  /bin/bash -c "
+    # Install x11vnc if not available
+    apt-get update && apt-get install -y x11vnc || true
+    
+    # Start VNC server
+    x11vnc -display :0 -nopw -listen 38.47.180.165 -xkb -ncache 10 -ncache_cr -forever &
+    
+    # Start noVNC
+    /usr/bin/websockify --web /usr/share/novnc/ 6080 38.47.180.165:5900
+  "
+
+echo "[OK] noVNC setup completed"
 
 echo
 echo "========================================"
