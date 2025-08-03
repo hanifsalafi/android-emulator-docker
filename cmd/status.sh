@@ -35,13 +35,13 @@ test_url() {
     fi
 }
 
-test_url "http://localhost:9080" "Frontend"
+test_url "http://localhost:8050" "Frontend"
 test_url "http://localhost:6080" "Emulator (noVNC)"
 test_url "http://localhost:3000/api/status" "API"
 
 echo
 echo "Quick Access:"
 echo "============="
-echo "• Frontend: http://localhost:9080"
+echo "• Frontend: http://localhost:8050"
 echo "• Emulator: http://localhost:6080"
-echo "• API Test: http://localhost:9080/test-api.html" 
+echo "• API Test: http://localhost:8050/test-api.html" 

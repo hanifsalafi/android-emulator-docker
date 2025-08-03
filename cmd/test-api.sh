@@ -39,7 +39,7 @@ fi
 echo
 
 echo "[3/3] WebSocket (manual test)"
-echo "- Open http://localhost:9080/test-api.html in your browser"
+echo "- Open http://localhost:8050/test-api.html in your browser"
 echo "- Use the WebSocket test interface"
 echo
 

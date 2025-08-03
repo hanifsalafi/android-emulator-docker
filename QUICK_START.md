@@ -42,9 +42,9 @@ sudo ./cmd/setup-minimal.sh
 ```
 
 ## Akses
-- **Frontend**: http://localhost:9080
+- **Frontend**: http://localhost:8050
 - **Emulator (noVNC)**: http://localhost:6080
-- **API Test**: http://localhost:9080/test-api.html
+- **API Test**: http://localhost:8050/test-api.html
 
 ## Script Management
 | Script | Fungsi |
