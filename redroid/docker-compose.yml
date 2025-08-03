@@ -1,0 +1,70 @@
+version: "3.8"
+
+services:
+  redroid:
+    image: redroid/redroid:11.0.0-latest
+    container_name: android-redroid
+    privileged: true
+    ports:
+      - "5555:5555"   # ADB port
+      - "6080:6080"   # noVNC port
+    environment:
+      - DISPLAY=:0
+    volumes:
+      - /dev/kvm:/dev/kvm
+      - /dev/video10:/dev/video10
+      - redroid_data:/data
+    networks:
+      - redroid-network
+    command: >
+      sh -c "
+        # Start Redroid
+        /system/bin/redroid &
+        
+        # Wait for Redroid to be ready
+        sleep 30
+        
+        # Start noVNC
+        /usr/bin/x11vnc -display :0 -nopw -listen 38.47.180.165 -xkb -ncache 10 -ncache_cr -forever &
+        
+        # Start websockify for noVNC
+        /usr/bin/websockify --web /usr/share/novnc/ 6080 38.47.180.165:5900 &
+        
+        # Keep container running
+        tail -f /dev/null
+      "
+
+  websocket:
+    build: ../ws-server
+    container_name: redroid-controller
+    ports:
+      - "9999:9999"   # WebSocket server
+      - "3000:3000"   # HTTP API
+    volumes:
+      - /dev/video10:/dev/video10
+      - /tmp:/tmp
+    privileged: true
+    depends_on:
+      - redroid
+    networks:
+      - redroid-network
+
+  frontend:
+    image: nginx:alpine
+    container_name: redroid-frontend
+    volumes:
+      - ../frontend:/usr/share/nginx/html:ro
+      - ../frontend/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - "8050:80"
+    depends_on:
+      - websocket
+    networks:
+      - redroid-network
+
+volumes:
+  redroid_data:
+
+networks:
+  redroid-network:
+    driver: bridge 
