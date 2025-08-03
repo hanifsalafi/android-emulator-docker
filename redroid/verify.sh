@@ -52,7 +52,7 @@ echo "ADB devices:"
 docker exec redroid-controller adb devices 2>/dev/null || echo "ADB not available"
 
 echo "Testing ADB connection to Redroid:"
-docker exec redroid-controller adb connect localhost:5555 2>/dev/null || echo "ADB connection failed"
+docker exec redroid-controller adb connect 38.47.180.165:5555 2>/dev/null || echo "ADB connection failed"
 
 echo "ADB devices after connection:"
 docker exec redroid-controller adb devices 2>/dev/null || echo "ADB devices command failed"
@@ -75,24 +75,24 @@ echo
 
 # Test noVNC accessibility
 echo "Testing noVNC accessibility..."
-if curl -s --max-time 10 "http://localhost:6080" > /dev/null 2>&1; then
-    echo "[SUCCESS] noVNC is accessible at http://localhost:6080"
+if curl -s --max-time 10 "http://38.47.180.165:6080" > /dev/null 2>&1; then
+    echo "[SUCCESS] noVNC is accessible at http://38.47.180.165:6080"
 else
     echo "[ERROR] noVNC is not accessible"
 fi
 
 # Test frontend accessibility
 echo "Testing frontend accessibility..."
-if curl -s --max-time 10 "http://localhost:8050" > /dev/null 2>&1; then
-    echo "[SUCCESS] Frontend is accessible at http://localhost:8050"
+if curl -s --max-time 10 "http://38.47.180.165:8050" > /dev/null 2>&1; then
+    echo "[SUCCESS] Frontend is accessible at http://38.47.180.165:8050"
 else
     echo "[ERROR] Frontend is not accessible"
 fi
 
 # Test API accessibility
 echo "Testing API accessibility..."
-if curl -s --max-time 10 "http://localhost:3000/api/status" > /dev/null 2>&1; then
-    echo "[SUCCESS] API is accessible at http://localhost:3000/api/status"
+if curl -s --max-time 10 "http://38.47.180.165:3000/api/status" > /dev/null 2>&1; then
+    echo "[SUCCESS] API is accessible at http://38.47.180.165:3000/api/status"
 else
     echo "[ERROR] API is not accessible"
 fi
@@ -135,21 +135,21 @@ else
     echo "❌ ADB device not connected"
 fi
 
-if curl -s --max-time 5 "http://localhost:6080" > /dev/null 2>&1; then
+if curl -s --max-time 5 "http://38.47.180.165:6080" > /dev/null 2>&1; then
     echo "✅ noVNC accessible"
     success_count=$((success_count+1))
 else
     echo "❌ noVNC not accessible"
 fi
 
-if curl -s --max-time 5 "http://localhost:8050" > /dev/null 2>&1; then
+if curl -s --max-time 5 "http://38.47.180.165:8050" > /dev/null 2>&1; then
     echo "✅ Frontend accessible"
     success_count=$((success_count+1))
 else
     echo "❌ Frontend not accessible"
 fi
 
-if curl -s --max-time 5 "http://localhost:3000/api/status" > /dev/null 2>&1; then
+if curl -s --max-time 5 "http://38.47.180.165:3000/api/status" > /dev/null 2>&1; then
     echo "✅ API accessible"
     success_count=$((success_count+1))
 else
@@ -180,7 +180,7 @@ fi
 
 echo
 echo "Access URLs:"
-echo "- Frontend: http://localhost:8050"
-echo "- noVNC: http://localhost:6080"
-echo "- API: http://localhost:3000/api/status"
+echo "- Frontend: http://38.47.180.165:8050"
+echo "- noVNC: http://38.47.180.165:6080"
+echo "- API: http://38.47.180.165:3000/api/status"
 echo 
