@@ -23,8 +23,8 @@ function connectADB(maxAttempts = 10) {
     attempts++;
     console.log(`ADB connection attempt ${attempts}/${maxAttempts}`);
     
-    // Use correct ADB connect format (without port)
-    exec('adb connect emulator-5554', (error, stdout, stderr) => {
+    // Use Redroid IP and port
+    exec('adb connect 38.47.180.165:5555', (error, stdout, stderr) => {
       if (error) {
         console.log('ADB connection error:', error.message);
         if (attempts < maxAttempts) {
@@ -37,10 +37,10 @@ function connectADB(maxAttempts = 10) {
         console.log('ADB connected successfully:', stdout);
         // Verify connection
         exec('adb devices', (error, stdout, stderr) => {
-          if (stdout.includes('emulator-5554')) {
-            console.log('Emulator confirmed connected:', stdout);
+          if (stdout.includes('38.47.180.165:5555')) {
+            console.log('Redroid confirmed connected:', stdout);
           } else {
-            console.log('Emulator not found in devices list');
+            console.log('Redroid not found in devices list');
           }
         });
       }
@@ -58,8 +58,8 @@ wss.on('connection', (ws, req) => {
   connections.set(clientId, ws);
   console.log(`Client ${clientId} connected`);
   
-  // Try to connect ADB for each new client (without port)
-  exec('adb connect emulator-5554', (error, stdout, stderr) => {
+  // Try to connect ADB for each new client
+  exec('adb connect 38.47.180.165:5555', (error, stdout, stderr) => {
     if (error) {
       console.log('ADB connection error:', error.message);
     } else {
@@ -105,27 +105,25 @@ function handleMessage(clientId, message) {
 }
 
 function handleTouch(x, y, action) {
-  console.log(`Touch: ${action} at (${x}, ${y})`);
+  console.log(`Touch: x=${x}, y=${y}, action=${action}`);
   
-  // Check if emulator is connected first
+  // Check if device is connected
   exec('adb devices', (error, stdout, stderr) => {
-    if (error || !stdout.includes('emulator-5554')) {
-      console.log('Emulator not connected, attempting to connect...');
-      exec('adb connect emulator-5554', (error, stdout, stderr) => {
+    if (error || !stdout.includes('38.47.180.165:5555')) {
+      console.log('Device not connected, attempting to reconnect...');
+      exec('adb connect 38.47.180.165:5555', (error, stdout, stderr) => {
         if (error) {
-          console.log('Failed to connect to emulator');
+          console.log('Reconnection failed:', error.message);
           return;
         }
-        // Retry touch command after connection
-        setTimeout(() => handleTouch(x, y, action), 2000);
       });
-      return;
     }
     
     // Execute touch command
-    exec(`adb shell input tap ${x} ${y}`, (error, stdout, stderr) => {
+    const command = `adb shell input touchscreen ${action} ${x} ${y}`;
+    exec(command, (error, stdout, stderr) => {
       if (error) {
-        console.log('Touch command error:', error);
+        console.log('Touch command error:', error.message);
       } else {
         console.log('Touch command executed successfully');
       }
@@ -134,17 +132,25 @@ function handleTouch(x, y, action) {
 }
 
 function handleKey(keyCode, action) {
-  console.log(`Key: ${action} keyCode ${keyCode}`);
+  console.log(`Key: keyCode=${keyCode}, action=${action}`);
   
+  // Check if device is connected
   exec('adb devices', (error, stdout, stderr) => {
-    if (error || !stdout.includes('emulator-5554')) {
-      console.log('Emulator not connected for key command');
-      return;
+    if (error || !stdout.includes('38.47.180.165:5555')) {
+      console.log('Device not connected, attempting to reconnect...');
+      exec('adb connect 38.47.180.165:5555', (error, stdout, stderr) => {
+        if (error) {
+          console.log('Reconnection failed:', error.message);
+          return;
+        }
+      });
     }
     
-    exec(`adb shell input keyevent ${keyCode}`, (error, stdout, stderr) => {
+    // Execute key command
+    const command = `adb shell input keyevent ${keyCode}`;
+    exec(command, (error, stdout, stderr) => {
       if (error) {
-        console.log('Key command error:', error);
+        console.log('Key command error:', error.message);
       } else {
         console.log('Key command executed successfully');
       }
@@ -153,55 +159,64 @@ function handleKey(keyCode, action) {
 }
 
 function handleCameraStream(data) {
-  // Check if v4l2loopback is available
-  exec('ls /dev/video10', (error, stdout, stderr) => {
-    if (error) {
-      console.log('Virtual video device not available for camera streaming');
-      return;
-    }
-    
-    const ffmpeg = spawn('ffmpeg', [
-      '-f', 'webm',
-      '-i', 'pipe:0',
-      '-f', 'v4l2',
-      '-pix_fmt', 'yuv420p',
-      '-s', '640x480',
-      '/dev/video10'
-    ]);
-    
-    ffmpeg.stdin.write(Buffer.from(data));
-    ffmpeg.stderr.on('data', data => {
-      console.log('FFmpeg:', data.toString());
-    });
-  });
+  console.log('Camera stream data received, length:', data.length);
+  
+  // Convert base64 data to buffer
+  const buffer = Buffer.from(data, 'base64');
+  
+  // Save to virtual video device
+  const fs = require('fs');
+  try {
+    fs.writeFileSync('/dev/video10', buffer);
+    console.log('Camera data written to /dev/video10');
+  } catch (error) {
+    console.log('Error writing to video device:', error.message);
+  }
 }
 
 function handleScreenshot(clientId) {
-  console.log('Taking screenshot...');
+  console.log('Screenshot request from client:', clientId);
   
+  // Check if device is connected
   exec('adb devices', (error, stdout, stderr) => {
-    if (error || !stdout.includes('emulator-5554')) {
-      console.log('Emulator not connected for screenshot');
-      return;
+    if (error || !stdout.includes('38.47.180.165:5555')) {
+      console.log('Device not connected, attempting to reconnect...');
+      exec('adb connect 38.47.180.165:5555', (error, stdout, stderr) => {
+        if (error) {
+          console.log('Reconnection failed:', error.message);
+          return;
+        }
+      });
     }
     
+    // Take screenshot
     exec('adb shell screencap -p /sdcard/screenshot.png', (error, stdout, stderr) => {
       if (error) {
-        console.log('Screenshot capture error:', error);
+        console.log('Screenshot error:', error.message);
         return;
       }
       
+      // Pull screenshot to host
       exec('adb pull /sdcard/screenshot.png /tmp/screenshot.png', (error, stdout, stderr) => {
         if (error) {
-          console.log('Screenshot pull error:', error);
+          console.log('Screenshot pull error:', error.message);
         } else {
           console.log('Screenshot saved to /tmp/screenshot.png');
+          
+          // Send screenshot to client
           const ws = connections.get(clientId);
           if (ws && ws.readyState === WebSocket.OPEN) {
-            ws.send(JSON.stringify({
-              type: 'screenshot_ready',
-              path: '/tmp/screenshot.png'
-            }));
+            const fs = require('fs');
+            try {
+              const imageData = fs.readFileSync('/tmp/screenshot.png');
+              const base64Data = imageData.toString('base64');
+              ws.send(JSON.stringify({
+                type: 'screenshot',
+                data: base64Data
+              }));
+            } catch (error) {
+              console.log('Error reading screenshot:', error.message);
+            }
           }
         }
       });
@@ -210,17 +225,25 @@ function handleScreenshot(clientId) {
 }
 
 function handleAppLaunch(packageName) {
-  console.log(`Launching app: ${packageName}`);
+  console.log('App launch request:', packageName);
   
+  // Check if device is connected
   exec('adb devices', (error, stdout, stderr) => {
-    if (error || !stdout.includes('emulator-5554')) {
-      console.log('Emulator not connected for app launch');
-      return;
+    if (error || !stdout.includes('38.47.180.165:5555')) {
+      console.log('Device not connected, attempting to reconnect...');
+      exec('adb connect 38.47.180.165:5555', (error, stdout, stderr) => {
+        if (error) {
+          console.log('Reconnection failed:', error.message);
+          return;
+        }
+      });
     }
     
-    exec(`adb shell monkey -p ${packageName} -c android.intent.category.LAUNCHER 1`, (error, stdout, stderr) => {
+    // Launch app using monkey
+    const command = `adb shell monkey -p ${packageName} -c android.intent.category.LAUNCHER 1`;
+    exec(command, (error, stdout, stderr) => {
       if (error) {
-        console.log('App launch error:', error);
+        console.log('App launch error:', error.message);
       } else {
         console.log('App launched successfully');
       }
@@ -228,37 +251,33 @@ function handleAppLaunch(packageName) {
   });
 }
 
-// API endpoints
+// HTTP API endpoints
 app.get('/api/status', (req, res) => {
   exec('adb devices', (error, stdout, stderr) => {
-    if (error) {
-      res.json({ status: 'error', message: 'ADB not available' });
-    } else {
-      const isConnected = stdout.includes('emulator-5554');
-      res.json({ 
-        status: 'success', 
-        connected: isConnected,
-        devices: stdout.trim()
-      });
-    }
+    const isConnected = stdout.includes('38.47.180.165:5555');
+    res.json({
+      connected: isConnected,
+      devices: stdout,
+      timestamp: new Date().toISOString()
+    });
   });
 });
 
 app.get('/api/apps', (req, res) => {
   exec('adb devices', (error, stdout, stderr) => {
-    if (error || !stdout.includes('emulator-5554')) {
-      res.json({ status: 'error', message: 'Emulator not connected' });
+    if (error || !stdout.includes('38.47.180.165:5555')) {
+      res.json({ error: 'Device not connected' });
       return;
     }
     
     exec('adb shell pm list packages -3', (error, stdout, stderr) => {
       if (error) {
-        res.json({ status: 'error', message: 'Failed to get apps' });
+        res.json({ error: 'Failed to get apps' });
       } else {
         const apps = stdout.split('\n')
           .filter(line => line.startsWith('package:'))
           .map(line => line.replace('package:', ''));
-        res.json({ status: 'success', apps: apps });
+        res.json({ apps });
       }
     });
   });
@@ -266,26 +285,24 @@ app.get('/api/apps', (req, res) => {
 
 app.post('/api/install', (req, res) => {
   const { apkPath } = req.body;
+  
   if (!apkPath) {
-    res.json({ status: 'error', message: 'APK path required' });
+    res.json({ error: 'APK path required' });
     return;
   }
   
   exec('adb devices', (error, stdout, stderr) => {
-    if (error || !stdout.includes('emulator-5554')) {
-      res.json({ status: 'error', message: 'Emulator not connected' });
+    if (error || !stdout.includes('38.47.180.165:5555')) {
+      res.json({ error: 'Device not connected' });
       return;
     }
     
     exec(`adb install ${apkPath}`, (error, stdout, stderr) => {
       if (error) {
-        res.json({ status: 'error', message: 'Installation failed' });
+        res.json({ error: 'Installation failed' });
       } else {
-        res.json({ status: 'success', message: 'APK installed successfully' });
+        res.json({ success: 'App installed successfully' });
       }
     });
   });
 });
-
-console.log('WebSocket server running on port 9999');
-console.log('HTTP API server running on port 3000');
