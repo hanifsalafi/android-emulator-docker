@@ -32,8 +32,8 @@ echo
 echo "Waiting for emulator to boot (this may take 2-5 minutes)..."
 echo
 echo "📱 Access points:"
-echo "   Frontend: http://localhost:8050"
-echo "   Emulator (noVNC): http://localhost:6080"
+echo "   Frontend: http://38.47.180.165:8050"
+echo "   Emulator (noVNC): http://38.47.180.165:6080"
 echo
 echo "🔧 Monitoring:"
 echo "   Check status: ./cmd/status.sh"

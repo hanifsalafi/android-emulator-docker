@@ -23,7 +23,7 @@ echo "Testing API endpoints..."
 echo
 
 echo "[1/3] /api/status"
-if curl -s http://localhost:3000/api/status | jq .; then
+if curl -s http://38.47.180.165:3000/api/status | jq .; then
     echo "[OK] Status API working"
 else
     echo "[ERROR] Status API failed"
@@ -31,7 +31,7 @@ fi
 echo
 
 echo "[2/3] /api/apps"
-if curl -s http://localhost:3000/api/apps | jq .; then
+if curl -s http://38.47.180.165:3000/api/apps | jq .; then
     echo "[OK] Apps API working"
 else
     echo "[ERROR] Apps API failed"
@@ -39,7 +39,7 @@ fi
 echo
 
 echo "[3/3] WebSocket (manual test)"
-echo "- Open http://localhost:8050/test-api.html in your browser"
+echo "- Open http://38.47.180.165:8050/test-api.html in your browser"
 echo "- Use the WebSocket test interface"
 echo
 

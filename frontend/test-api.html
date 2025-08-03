@@ -94,7 +94,7 @@
         async function testStatus() {
             const result = document.getElementById('statusResult');
             try {
-                const response = await fetch('http://localhost:3000/api/status');
+                const response = await fetch('http://38.47.180.165:3000/api/status');
                 const data = await response.json();
                 result.textContent = JSON.stringify(data, null, 2);
                 result.className = 'result success';
@@ -107,7 +107,7 @@
         async function testApps() {
             const result = document.getElementById('appsResult');
             try {
-                const response = await fetch('http://localhost:3000/api/apps');
+                const response = await fetch('http://38.47.180.165:3000/api/apps');
                 const data = await response.json();
                 result.textContent = JSON.stringify(data, null, 2);
                 result.className = 'result success';
@@ -120,7 +120,7 @@
         function testWebSocket() {
             const result = document.getElementById('wsResult');
             try {
-                ws = new WebSocket('ws://localhost:9999');
+                ws = new WebSocket('ws://38.47.180.165:9999');
                 
                 ws.onopen = () => {
                     result.textContent = 'WebSocket connected successfully';

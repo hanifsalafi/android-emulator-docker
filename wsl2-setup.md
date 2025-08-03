@@ -94,9 +94,9 @@ sudo chmod 666 /dev/kvm
 3. **Storage**: Gunakan SSD untuk performa lebih baik
 
 ## Access Points
-- **Frontend**: http://localhost:8050
-- **Emulator (noVNC)**: http://localhost:6080
-- **API Test**: http://localhost:8050/test-api.html
+- **Frontend**: http://38.47.180.165:8050
+- **Emulator (noVNC)**: http://38.47.180.165:6080
+- **API Test**: http://38.47.180.165:8050/test-api.html
 
 ---
 **Happy Emulating! 🎮📱** 

@@ -51,7 +51,7 @@ while [ $elapsed -lt $timeout ]; do
     fi
     
     # Check if noVNC is accessible
-    if curl -s --max-time 5 "http://localhost:6080" > /dev/null 2>&1; then
+    if curl -s --max-time 5 "http://38.47.180.165:6080" > /dev/null 2>&1; then
         echo "[SUCCESS] noVNC is accessible!"
         break
     fi
@@ -70,8 +70,8 @@ docker-compose ps
 
 echo
 echo "Access points:"
-echo "- Frontend: http://localhost:8050"
-echo "- noVNC: http://localhost:6080"
+echo "- Frontend: http://38.47.180.165:8050"
+echo "- noVNC: http://38.47.180.165:6080"
 echo
 echo "Monitor logs:"
 echo "docker logs -f android-emulator"

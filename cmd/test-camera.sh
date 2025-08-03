@@ -23,9 +23,9 @@ else
 fi
 
 echo "[3/3] Testing camera streaming..."
-echo "- Open http://localhost:8050 in your browser."
+echo "- Open http://38.47.180.165:8050 in your browser."
 echo "- Click 'Start Camera' and allow camera access."
-echo "- Open camera app in emulator (http://localhost:6080)."
+echo "- Open camera app in emulator (http://38.47.180.165:6080)."
 echo "- You should see your browser camera feed in the emulator."
 echo
 

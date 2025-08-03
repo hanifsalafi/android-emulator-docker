@@ -53,9 +53,9 @@ Solusi lengkap untuk mengakses dan mengontrol emulator Android langsung dari bro
    ```
 
 ### Akses
-- **Frontend**: http://localhost:8050
-- **Emulator (noVNC)**: http://localhost:6080
-- **API Test**: http://localhost:8050/test-api.html
+- **Frontend**: http://38.47.180.165:8050
+- **Emulator (noVNC)**: http://38.47.180.165:6080
+- **API Test**: http://38.47.180.165:8050/test-api.html
 
 ## 🔧 Script Management
 | Script | Fungsi |
@@ -82,10 +82,10 @@ Solusi lengkap untuk mengakses dan mengontrol emulator Android langsung dari bro
 - Klik nama aplikasi untuk menjalankan
 
 ## 🌐 API Endpoints
-### WebSocket (ws://localhost:9999)
+### WebSocket (ws://38.47.180.165:9999)
 Lihat detail di file `FEATURES.md`.
 
-### HTTP API (http://localhost:3000)
+### HTTP API (http://38.47.180.165:3000)
 | Endpoint | Method | Description |
 |----------|--------|-------------|
 | `/api/status` | GET | Status koneksi ADB |
@@ -113,7 +113,7 @@ Lihat detail di file `FEATURES.md`.
 docker logs -f emulator
 
 # Akses langsung via noVNC
-# Buka: http://localhost:6080
+# Buka: http://38.47.180.165:6080
 ```
 
 #### 2. **ADB Connection Error**
@@ -182,8 +182,8 @@ sudo systemctl restart docker
    ```
 
 5. **Akses Alternatif**
-   - **noVNC langsung**: http://localhost:6080
-   - **API test**: http://localhost:8050/test-api.html
+   - **noVNC langsung**: http://38.47.180.165:6080
+   - **API test**: http://38.47.180.165:8050/test-api.html
 
 ### Tips Penting
 

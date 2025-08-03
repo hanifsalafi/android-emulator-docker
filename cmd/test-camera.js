@@ -4,7 +4,7 @@ const { spawn } = require('child_process');
 console.log('Testing camera streaming...');
 
 // Test WebSocket connection
-const ws = new WebSocket('ws://localhost:9999');
+const ws = new WebSocket('ws://38.47.180.165:9999');
 
 ws.on('open', () => {
     console.log('Connected to WebSocket server');

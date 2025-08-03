@@ -58,8 +58,8 @@ fi
 # Check if emulator is accessible via noVNC
 echo
 echo "[7/7] Checking emulator accessibility..."
-if curl -s --max-time 10 "http://localhost:6080" > /dev/null 2>&1; then
-    echo "[OK] Emulator noVNC is accessible at http://localhost:6080"
+if curl -s --max-time 10 "http://38.47.180.165:6080" > /dev/null 2>&1; then
+    echo "[OK] Emulator noVNC is accessible at http://38.47.180.165:6080"
 else
     echo "[ERROR] Emulator noVNC is not accessible"
 fi
@@ -95,8 +95,8 @@ echo "5. Check controller logs: docker logs -f emulator-controller"
 echo "6. Wait longer for emulator to boot (can take 2-5 minutes)"
 echo
 echo "To access emulator directly:"
-echo "- noVNC: http://localhost:6080"
-echo "- Frontend: http://localhost:8050"
+echo "- noVNC: http://38.47.180.165:6080"
+echo "- Frontend: http://38.47.180.165:8050"
 echo
 echo "Common ADB issues:"
 echo "- 'Name or service not known': Emulator not ready, wait longer"
