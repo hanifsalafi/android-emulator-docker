@@ -22,7 +22,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - REDROID_HOST=android-redroid
+      - REDROID_HOST=38.47.180.165
       - REDROID_PORT=5555
     volumes:
       - /tmp:/tmp
@@ -69,9 +69,9 @@ services:
         # Wait for ADB server to be ready
         sleep 45 &&
         # Connect to ADB server from redroid-controller
-        adb connect redroid-controller:5037 &&
+        adb connect 38.47.180.165:5037 &&
         # Connect to Redroid device
-        adb connect android-redroid:5555 &&
+        adb connect 38.47.180.165:5555 &&
         python3 app.py
       "
 

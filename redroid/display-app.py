@@ -102,9 +102,9 @@ def ensure_adb_connection():
         
         # Try multiple connection methods
         connection_methods = [
-            ['adb', 'connect', 'android-redroid:5555'],
+            ['adb', 'connect', '38.47.180.165:5555'],
             ['adb', 'connect', 'localhost:5555'],
-            ['adb', 'connect', 'redroid:5555']
+            ['adb', 'connect', '127.0.0.1:5555']
         ]
         
         for method in connection_methods:
