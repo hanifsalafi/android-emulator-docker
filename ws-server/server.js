@@ -23,7 +23,7 @@ function connectADB(maxAttempts = 10) {
     attempts++;
     console.log(`ADB connection attempt ${attempts}/${maxAttempts}`);
     
-    // Use Redroid IP and port
+    // Use IP and port for traditional emulator
     exec('adb connect 38.47.180.165:5555', (error, stdout, stderr) => {
       if (error) {
         console.log('ADB connection error:', error.message);
@@ -38,9 +38,9 @@ function connectADB(maxAttempts = 10) {
         // Verify connection
         exec('adb devices', (error, stdout, stderr) => {
           if (stdout.includes('38.47.180.165:5555')) {
-            console.log('Redroid confirmed connected:', stdout);
+            console.log('Emulator confirmed connected:', stdout);
           } else {
-            console.log('Redroid not found in devices list');
+            console.log('Emulator not found in devices list');
           }
         });
       }
