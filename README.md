@@ -63,8 +63,11 @@ Solusi lengkap untuk mengakses dan mengontrol emulator Android langsung dari bro
 | `cmd/run.sh` | Menjalankan services (auto-detect setup) |
 | `cmd/run-minimal.sh` | Menjalankan services (minimal setup) |
 | `cmd/stop.sh` | Menghentikan semua services |
+| `cmd/restart.sh` | Restart services dengan cleanup |
 | `cmd/status.sh` | Menampilkan status services |
 | `cmd/logs.sh` | Melihat logs services |
+| `cmd/check-emulator.sh` | Cek status emulator & ADB |
+| `cmd/fix-adb.sh` | Perbaiki masalah ADB connection |
 | `cmd/test-all.sh` | Menjalankan semua test & verifikasi |
 | `cmd/test-api.sh` | Test API endpoints |
 | `cmd/test-camera.sh` | Test kamera & virtual device |
@@ -95,13 +98,110 @@ Lihat detail di file `FEATURES.md`.
 - Untuk troubleshooting, jalankan `./cmd/test-camera.sh`
 
 ## 🆘 Troubleshooting
-- **Cek status**: `./cmd/status.sh`
-- **Lihat logs**: `./cmd/logs.sh`
-- **Test semua**: `./cmd/test-all.sh`
-- **Test kamera**: `./cmd/test-camera.sh`
-- **Test API**: `./cmd/test-api.sh`
-- **Restart**: `docker-compose restart`
-- **Stop**: `./cmd/stop.sh`
+
+### Masalah Umum
+
+#### 1. **Emulator Blank Screen / Tidak Muncul**
+```bash
+# Cek status emulator
+./cmd/check-emulator.sh
+
+# Restart services
+./cmd/restart.sh
+
+# Cek logs emulator
+docker logs -f emulator
+
+# Akses langsung via noVNC
+# Buka: http://localhost:6080
+```
+
+#### 2. **ADB Connection Error**
+```bash
+# Cek ADB connection
+docker exec emulator-controller adb devices
+
+# Fix ADB connection
+./cmd/fix-adb.sh
+
+# Restart controller
+docker restart emulator-controller
+
+# Cek logs controller
+docker logs -f emulator-controller
+```
+
+#### 3. **Camera Tidak Berfungsi**
+```bash
+# Test camera
+./cmd/test-camera.sh
+
+# Cek virtual device
+ls -l /dev/video10
+
+# Load module manual
+sudo modprobe v4l2loopback video_nr=10
+```
+
+#### 4. **Services Tidak Start**
+```bash
+# Cek Docker
+docker info
+
+# Cek disk space
+df -h
+
+# Cek memory
+free -h
+
+# Restart Docker
+sudo systemctl restart docker
+```
+
+### Langkah Troubleshooting Lengkap
+
+1. **Cek Status Dasar**
+   ```bash
+   ./cmd/status.sh
+   ./cmd/check-emulator.sh
+   ```
+
+2. **Restart Services**
+   ```bash
+   ./cmd/restart.sh
+   ```
+
+3. **Monitor Logs**
+   ```bash
+   ./cmd/logs.sh
+   ```
+
+4. **Test Connectivity**
+   ```bash
+   ./cmd/test-all.sh
+   ```
+
+5. **Akses Alternatif**
+   - **noVNC langsung**: http://localhost:6080
+   - **API test**: http://localhost:8050/test-api.html
+
+### Tips Penting
+
+- **Emulator boot time**: 2-5 menit (normal)
+- **KVM required**: Pastikan virtualization enabled di BIOS
+- **Memory minimum**: 4GB RAM
+- **Disk space**: 10GB free space
+- **Browser**: Gunakan Chrome/Firefox terbaru
+
+### Error Messages & Solusi
+
+| Error | Solusi |
+|-------|--------|
+| `no devices/emulators found` | Restart services, tunggu emulator boot |
+| `v4l2loopback module not found` | Install: `sudo apt install v4l2loopback-dkms` |
+| `KVM not found` | Enable virtualization di BIOS |
+| `Connection refused` | Cek Docker service, restart jika perlu |
+| `Permission denied` | Jalankan dengan `sudo` atau tambahkan user ke docker group |
 
 ## 📋 Requirements
 - Docker

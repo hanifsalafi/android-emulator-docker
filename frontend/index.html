@@ -12,10 +12,10 @@
             background-color: #f0f0f0;
         }
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             display: grid;
-            grid-template-columns: 1fr 300px;
+            grid-template-columns: 1fr 350px;
             gap: 20px;
         }
         .emulator-view {
@@ -26,20 +26,37 @@
         }
         .emulator-screen {
             width: 100%;
-            max-width: 400px;
             height: 600px;
             background: #333;
             border: 2px solid #666;
             border-radius: 10px;
             margin: 0 auto;
             position: relative;
+            overflow: hidden;
+        }
+        .emulator-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 8px;
+        }
+        .emulator-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: transparent;
             cursor: crosshair;
+            z-index: 10;
         }
         .controls {
             background: white;
             border-radius: 10px;
             padding: 20px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-height: 800px;
+            overflow-y: auto;
         }
         .control-group {
             margin-bottom: 20px;
@@ -47,6 +64,7 @@
         .control-group h3 {
             margin: 0 0 10px 0;
             color: #333;
+            font-size: 16px;
         }
         .button {
             background: #007bff;
@@ -56,6 +74,7 @@
             border-radius: 5px;
             cursor: pointer;
             margin: 5px;
+            font-size: 14px;
         }
         .button:hover {
             background: #0056b3;
@@ -68,6 +87,7 @@
             padding: 10px;
             border-radius: 5px;
             margin: 10px 0;
+            font-weight: bold;
         }
         .status.connected {
             background: #d4edda;
@@ -96,24 +116,52 @@
             text-align: center;
             border-radius: 3px;
             cursor: pointer;
+            font-size: 12px;
         }
         .key:hover {
+            background: #e9ecef;
+        }
+        .app-item {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+            word-break: break-all;
+        }
+        .app-item:hover {
             background: #e9ecef;
         }
         .apps-list {
             max-height: 200px;
             overflow-y: auto;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+            border: 1px solid #dee2e6;
+            border-radius: 3px;
             padding: 10px;
         }
-        .app-item {
-            padding: 5px;
-            cursor: pointer;
-            border-bottom: 1px solid #eee;
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #666;
+            font-style: italic;
         }
-        .app-item:hover {
-            background: #f8f9fa;
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
         }
     </style>
 </head>
@@ -122,50 +170,59 @@
         <div class="emulator-view">
             <h2>Android Emulator</h2>
             <div class="emulator-screen" id="emulatorScreen">
-                <div style="color: white; padding: 20px;">
-                    <p>Emulator screen will appear here</p>
-                    <p>Click to interact</p>
-                </div>
+                <iframe 
+                    src="http://38.47.180.165:6080" 
+                    class="emulator-iframe" 
+                    id="emulatorIframe"
+                    title="Android Emulator"
+                    allow="camera; microphone; geolocation">
+                </iframe>
+                <div class="emulator-overlay" id="emulatorOverlay"></div>
             </div>
             <div class="status" id="connectionStatus">Disconnected</div>
         </div>
         
         <div class="controls">
+            <!-- Connection Controls -->
             <div class="control-group">
-                <h3>Connection</h3>
+                <h3>🔗 Connection</h3>
                 <button class="button" onclick="connect()">Connect</button>
                 <button class="button" onclick="disconnect()">Disconnect</button>
             </div>
 
+            <!-- Camera Controls -->
             <div class="control-group">
-                <h3>Camera</h3>
+                <h3>📷 Camera</h3>
                 <video id="cameraPreview" class="camera-preview" autoplay playsinline muted></video>
                 <button class="button" onclick="startCamera()">Start Camera</button>
                 <button class="button" onclick="stopCamera()">Stop Camera</button>
             </div>
 
+            <!-- Navigation Controls -->
             <div class="control-group">
-                <h3>Navigation</h3>
+                <h3>🎮 Navigation</h3>
                 <div class="keyboard-controls">
                     <div class="key" onclick="sendKey(19)">▲</div>
                     <div class="key" onclick="sendKey(20)">▼</div>
                     <div class="key" onclick="sendKey(21)">◀</div>
                     <div class="key" onclick="sendKey(22)">▶</div>
-                    <div class="key" onclick="sendKey(23)">OK</div>
                     <div class="key" onclick="sendKey(4)">Back</div>
+                    <div class="key" onclick="sendKey(3)">Home</div>
                 </div>
             </div>
 
+            <!-- Action Controls -->
             <div class="control-group">
-                <h3>Actions</h3>
+                <h3>⚡ Actions</h3>
                 <button class="button" onclick="takeScreenshot()">Screenshot</button>
                 <button class="button" onclick="loadApps()">Load Apps</button>
             </div>
 
+            <!-- Apps List -->
             <div class="control-group">
-                <h3>Installed Apps</h3>
+                <h3>📱 Apps</h3>
                 <div class="apps-list" id="appsList">
-                    <div class="app-item">Click "Load Apps" to see installed apps</div>
+                    <div class="loading">Click "Load Apps" to see installed applications</div>
                 </div>
             </div>
         </div>
@@ -177,14 +234,18 @@
         let cameraStream = null;
         let isConnected = false;
 
-        // WebSocket connection
         function connect() {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                console.log('Already connected');
+                return;
+            }
+
             ws = new WebSocket('ws://38.47.180.165:9999');
             
             ws.onopen = () => {
+                console.log('Connected to emulator controller');
                 isConnected = true;
                 updateStatus('Connected', true);
-                console.log('Connected to emulator controller');
             };
             
             ws.onmessage = (event) => {
@@ -192,7 +253,7 @@
                     const message = JSON.parse(event.data);
                     handleServerMessage(message);
                 } catch (error) {
-                    console.log('Received data:', event.data);
+                    console.error('Error parsing message:', error);
                 }
             };
             
@@ -272,8 +333,8 @@
             console.log('Camera streaming stopped');
         }
 
-        // Touch handling
-        document.getElementById('emulatorScreen').addEventListener('click', (event) => {
+        // Touch handling on overlay
+        document.getElementById('emulatorOverlay').addEventListener('click', (event) => {
             if (!isConnected) return;
             
             const rect = event.target.getBoundingClientRect();
@@ -316,11 +377,22 @@
             switch (message.type) {
                 case 'screenshot_ready':
                     console.log('Screenshot ready:', message.path);
-                    // Here you could display the screenshot
+                    showMessage('Screenshot saved successfully!', 'success');
                     break;
                 default:
                     console.log('Unknown message type:', message.type);
             }
+        }
+
+        function showMessage(text, type) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `${type}-message`;
+            messageDiv.textContent = text;
+            document.body.appendChild(messageDiv);
+            
+            setTimeout(() => {
+                messageDiv.remove();
+            }, 3000);
         }
 
         // App management
@@ -333,15 +405,22 @@
                     displayApps(data.apps);
                 } else {
                     console.error('Failed to load apps:', data.message);
+                    showMessage('Failed to load apps: ' + data.message, 'error');
                 }
             } catch (error) {
                 console.error('Error loading apps:', error);
+                showMessage('Error loading apps: ' + error.message, 'error');
             }
         }
 
         function displayApps(apps) {
             const appsList = document.getElementById('appsList');
             appsList.innerHTML = '';
+            
+            if (apps.length === 0) {
+                appsList.innerHTML = '<div class="loading">No apps found</div>';
+                return;
+            }
             
             apps.forEach(app => {
                 const appItem = document.createElement('div');
@@ -359,6 +438,7 @@
                     packageName: packageName
                 }));
                 console.log('Launching app:', packageName);
+                showMessage('Launching app: ' + packageName, 'success');
             }
         }
 
